@@ -1,10 +1,13 @@
 using Images, ProgressMeter
 
+include("vec3.jl")
+
+
 const image_width = 256
 const image_height = 256
 
 function color(i, j)
-    [i / image_width, j / image_height, 0.2]
+    Vec3(i / image_width, j / image_height, 0.25)
 end
 
 function render()
