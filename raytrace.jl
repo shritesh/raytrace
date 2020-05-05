@@ -4,15 +4,12 @@ include("vec3.jl")
 include("ray.jl")
 include("hittable.jl")
 include("sphere.jl")
+include("camera.jl")
 
 const aspect_ratio = 16 / 9
 const image_width = 384
 const image_height = Int(image_width ÷ aspect_ratio)
-
-const lower_left_corner = Vec3(-2, -1, -1)
-const horizontal = Vec3(4, 0, 0)
-const vertical = Vec3(0, 2, 0)
-const origin = Vec3(0, 0, 0)
+const samples_per_pixel = 100
 
 function ray_color(r::Ray, world::HittableList)::Vec3
 
@@ -27,12 +24,16 @@ function ray_color(r::Ray, world::HittableList)::Vec3
    end
 end
 
-function color(world::HittableList, i::Int, j::Int)::Vec3
-   u = i / image_width
-   v = j / image_height
+function color(world::HittableList, cam::Camera, i::Int, j::Int)::Vec3
+   c = Vec3(0, 0, 0)
+   for _ = 1:samples_per_pixel
+      u = (i + rand()) / image_width
+      v = (j + rand()) / image_height
+      r = get_ray(cam, u, v)
+      c += ray_color(r, world)
+   end
+   c / samples_per_pixel
 
-   r = Ray(origin, lower_left_corner + u * horizontal + v * vertical)
-   ray_color(r, world)
 end
 
 function render()
@@ -41,7 +42,12 @@ function render()
       Sphere(Vec3(0, -100.5, -1), 100),
    ])
 
-   [RGB(color(world, i, j)...) for j = image_height:-1:1, i = 1:image_width]
+   cam = Camera()
+
+   [
+      RGB(color(world, cam, i, j)...)
+      for j = image_height:-1:1, i = 1:image_width
+   ]
 end
 
 @time render()
