@@ -58,8 +58,15 @@ function render()
       Sphere(Vec3(-1, 0, -1), -0.45, Dielectric(1.5)),
    ])
 
+   lookfrom = Vec3(3, 3, 2)
+   lookat = Vec3(0, 0, -1)
+   vup = Vec3(0, 1, 0)
+   dist_to_focus = norm(lookfrom - lookat)
+   aperture = 2.0
+
    cam =
-      Camera(Vec3(-2, 2, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 20.0, aspect_ratio)
+      Camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
+
 
    [
       RGB(color(world, cam, i, j)...)

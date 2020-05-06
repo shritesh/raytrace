@@ -30,6 +30,15 @@ function random_in_hemisphere(normal::Vec3)
     end
 end
 
+function random_in_unit_disk()
+    while true
+        p = Vec3(rand(-1:eps():1), rand(-1:eps():1), 0)
+        if length_squared(p) < 1
+            return p
+        end
+    end
+end
+
 reflect(v::Vec3, n::Vec3) = v - 2 * dot(v, n) * n
 
 function refract(uv::Vec3, n::Vec3, etai_over_etat::Float64)
