@@ -5,18 +5,25 @@ include("ray.jl")
 include("hittable.jl")
 include("sphere.jl")
 include("camera.jl")
+include("materials.jl")
 
 const aspect_ratio = 16 / 9
 const image_width = 384
 const image_height = Int(image_width ÷ aspect_ratio)
 const samples_per_pixel = 100
+const max_depth = 50
 
-function ray_color(r::Ray, world::HittableList)::Vec3
+function ray_color(r::Ray, world::HittableList, depth::Int)::Vec3
 
-   hr = hit(world, r, 0.0, Inf)
+   if depth <= 0
+      return Vec3(0, 0, 0)
+   end
+
+   hr = hit(world, r, 0.001, Inf)
 
    if hr != nothing
-      0.5 * (hr.normal .+ 1)
+      target = hr.p + random_in_hemisphere(hr.normal)
+      0.5 * ray_color(Ray(hr.p, target - hr.p), world, depth - 1)
    else
       unit_direction = normalize(r.direction)
       t = 0.5 * (unit_direction[2] + 1)
@@ -30,10 +37,10 @@ function color(world::HittableList, cam::Camera, i::Int, j::Int)::Vec3
       u = (i + rand()) / image_width
       v = (j + rand()) / image_height
       r = get_ray(cam, u, v)
-      c += ray_color(r, world)
+      c += ray_color(r, world, max_depth)
    end
-   c / samples_per_pixel
 
+   sqrt.(c / samples_per_pixel)
 end
 
 function render()
