@@ -49,20 +49,55 @@ function color(world::HittableList, cam::Camera, i::Int, j::Int)::Vec3
    sqrt.(c / samples_per_pixel)
 end
 
-function render()
-   world = HittableList([
-      Sphere(Vec3(0, 0, -1), 0.5, Lambertian(Vec3(0.1, 0.2, 0.5))),
-      Sphere(Vec3(0, -100.5, -1), 100, Lambertian(Vec3(0.8, 0.8, 0))),
-      Sphere(Vec3(1, 0, -1), 0.5, Metal(Vec3(0.8, 0.6, 0.2), 0.3)),
-      Sphere(Vec3(-1, 0, -1), 0.5, Dielectric(1.5)),
-      Sphere(Vec3(-1, 0, -1), -0.45, Dielectric(1.5)),
-   ])
+function random_scene()
+   world = HittableList([])
+   push!(
+      world.objects,
+      Sphere(Vec3(0, -1000, 0), 1000, Lambertian(Vec3(0.5, 0.5, 0.5))),
+   )
 
-   lookfrom = Vec3(3, 3, 2)
-   lookat = Vec3(0, 0, -1)
+   for a = -11:10, b = -11:10
+      choose_mat = rand()
+
+      center = Vec3(a + 0.9 * rand(), 0.2, b + 0.9 * rand())
+
+      if norm(center - Vec3(4, 0.2, 0)) > 0.9
+         if choose_mat < 0.8
+            # diffuse
+            albedo = convert(Vec3, rand(3) .* rand(3))
+            push!(world.objects, Sphere(center, 0.2, Lambertian(albedo)))
+         elseif choose_mat < 0.95
+            # metal
+            albedo = convert(Vec3, rand(0.5:eps():1, 3))
+            fuzz = rand(0:eps():0.5)
+            push!(world.objects, Sphere(center, 0.2, Metal(albedo, fuzz)))
+         else
+            # glass
+            push!(world.objects, Sphere(center, 0.2, Dielectric(1.5)))
+         end
+      end
+   end
+
+   push!(world.objects, Sphere(Vec3(0, 1, 0), 1, Dielectric(1.5)))
+   push!(
+      world.objects,
+      Sphere(Vec3(-4, 1, 0), 1, Lambertian(Vec3(0.4, 0.2, 0.1))),
+   )
+   push!(
+      world.objects,
+      Sphere(Vec3(4, 1, 0), 1, Metal(Vec3(0.7, 0.6, 0.5), 0.0)),
+   )
+
+   world
+end
+
+function render()
+   world = random_scene()
+   lookfrom = Vec3(13, 2, 3)
+   lookat = Vec3(0, 0, 0)
    vup = Vec3(0, 1, 0)
-   dist_to_focus = norm(lookfrom - lookat)
-   aperture = 2.0
+   dist_to_focus = 10.0
+   aperture = 0.1
 
    cam =
       Camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
@@ -74,4 +109,5 @@ function render()
    ]
 end
 
-@time render()
+img = @time render()
+save("image.png", img)
