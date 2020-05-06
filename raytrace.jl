@@ -58,7 +58,8 @@ function render()
       Sphere(Vec3(-1, 0, -1), -0.45, Dielectric(1.5)),
    ])
 
-   cam = Camera()
+   cam =
+      Camera(Vec3(-2, 2, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 20.0, aspect_ratio)
 
    [
       RGB(color(world, cam, i, j)...)

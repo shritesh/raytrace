@@ -4,8 +4,30 @@ struct Camera
     horizontal::Vec3
     vertical::Vec3
 
-    Camera() =
-        new(Vec3(0, 0, 0), Vec3(-2, -1, -1), Vec3(4, 0, 0), Vec3(0, 2, 0))
+    function Camera(
+        lookfrom::Vec3,
+        lookat::Vec3,
+        vup::Vec3,
+        vfov::Float64,
+        aspect_ratio::Float64,
+    )
+        origin = lookfrom
+
+        theta = deg2rad(vfov)
+        half_height = tan(theta / 2)
+        half_width = aspect_ratio * half_height
+
+        w = normalize(lookfrom - lookat)
+        u = normalize(cross(vup, w))
+        v = cross(w, u)
+
+        lower_left_corner = origin - half_width * u - half_height * v - w
+
+        horizontal = 2 * half_width * u
+        vertical = 2 * half_height * v
+
+        new(origin, lower_left_corner, horizontal, vertical)
+    end
 end
 
 get_ray(c::Camera, u::Float64, v::Float64)::Ray = Ray(
