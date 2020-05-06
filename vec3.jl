@@ -31,3 +31,10 @@ function random_in_hemisphere(normal::Vec3)
 end
 
 reflect(v::Vec3, n::Vec3) = v - 2 * dot(v, n) * n
+
+function refract(uv::Vec3, n::Vec3, etai_over_etat::Float64)
+    cos_theta = dot(-uv, n)
+    r_out_parallel = etai_over_etat * (uv + cos_theta * n)
+    r_out_perp = -sqrt(1 - length_squared(r_out_parallel)) * n
+    r_out_parallel + r_out_perp
+end

@@ -51,10 +51,11 @@ end
 
 function render()
    world = HittableList([
-      Sphere(Vec3(0, 0, -1), 0.5, Lambertian(Vec3(0.7, 0.3, 0.3))),
+      Sphere(Vec3(0, 0, -1), 0.5, Lambertian(Vec3(0.1, 0.2, 0.5))),
       Sphere(Vec3(0, -100.5, -1), 100, Lambertian(Vec3(0.8, 0.8, 0))),
       Sphere(Vec3(1, 0, -1), 0.5, Metal(Vec3(0.8, 0.6, 0.2), 0.3)),
-      Sphere(Vec3(-1, 0, -1), 0.5, Metal(Vec3(0.8, 0.8, 0.8), 1.0)),
+      Sphere(Vec3(-1, 0, -1), 0.5, Dielectric(1.5)),
+      Sphere(Vec3(-1, 0, -1), -0.45, Dielectric(1.5)),
    ])
 
    cam = Camera()
