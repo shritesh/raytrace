@@ -29,3 +29,5 @@ function random_in_hemisphere(normal::Vec3)
         -in_unit_sphere
     end
 end
+
+reflect(v::Vec3, n::Vec3) = v - 2 * dot(v, n) * n

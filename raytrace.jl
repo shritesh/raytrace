@@ -2,10 +2,11 @@ using Images, LinearAlgebra
 
 include("vec3.jl")
 include("ray.jl")
+abstract type Material end
 include("hittable.jl")
+include("materials.jl")
 include("sphere.jl")
 include("camera.jl")
-include("materials.jl")
 
 const aspect_ratio = 16 / 9
 const image_width = 384
@@ -22,8 +23,13 @@ function ray_color(r::Ray, world::HittableList, depth::Int)::Vec3
    hr = hit(world, r, 0.001, Inf)
 
    if hr != nothing
-      target = hr.p + random_in_hemisphere(hr.normal)
-      0.5 * ray_color(Ray(hr.p, target - hr.p), world, depth - 1)
+
+      did_scatter, attenuation, scattered = scatter(hr.mat, r, hr)
+      if did_scatter
+         attenuation .* ray_color(scattered, world, depth - 1)
+      else
+         Vec3(0, 0, 0)
+      end
    else
       unit_direction = normalize(r.direction)
       t = 0.5 * (unit_direction[2] + 1)
@@ -45,8 +51,10 @@ end
 
 function render()
    world = HittableList([
-      Sphere(Vec3(0, 0, -1), 0.5),
-      Sphere(Vec3(0, -100.5, -1), 100),
+      Sphere(Vec3(0, 0, -1), 0.5, Lambertian(Vec3(0.7, 0.3, 0.3))),
+      Sphere(Vec3(0, -100.5, -1), 100, Lambertian(Vec3(0.8, 0.8, 0))),
+      Sphere(Vec3(1, 0, -1), 0.5, Metal(Vec3(0.8, 0.6, 0.2), 0.3)),
+      Sphere(Vec3(-1, 0, -1), 0.5, Metal(Vec3(0.8, 0.8, 0.8), 1.0)),
    ])
 
    cam = Camera()

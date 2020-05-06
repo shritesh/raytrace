@@ -1,6 +1,7 @@
 struct Sphere <: Hittable
    center::Vec3
    radius::Float64
+   mat::Material
 end
 
 function hit(
@@ -21,13 +22,13 @@ function hit(
       if t_min < temp < t_max
          p = at(r, temp)
          outward_normal = (p - sphere.center) / sphere.radius
-         HitRecord(p, temp, r, outward_normal)
+         HitRecord(p, temp, sphere.mat, r, outward_normal)
       else
          temp = (-half_b + root) / a
          if t_min < temp < t_max
             p = at(r, temp)
             outward_normal = (p - sphere.center) / sphere.radius
-            HitRecord(p, temp, r, outward_normal)
+            HitRecord(p, temp, sphere.mat, r, outward_normal)
          end
       end
    end

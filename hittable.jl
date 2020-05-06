@@ -3,13 +3,20 @@ abstract type Hittable end
 struct HitRecord
     p::Vec3
     normal::Vec3
+    mat::Material
     t::Float64
     front_face::Bool
 
-    function HitRecord(p::Vec3, t::Float64, r::Ray, outward_normal::Vec3)
+    function HitRecord(
+        p::Vec3,
+        t::Float64,
+        mat::Material,
+        r::Ray,
+        outward_normal::Vec3,
+    )
         front_face = dot(r.direction, outward_normal) < 0
         normal = front_face ? outward_normal : -outward_normal
-        new(p, normal, t, front_face)
+        new(p, normal, mat, t, front_face)
     end
 end
 
